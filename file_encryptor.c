@@ -1,11 +1,13 @@
-#include <stdio.h>
+#include <iostream>
+#include <fstream>
 
 int main() {
     int choice;
-    printf("Enter 1 to encrypt and 2 to decrypt: ");
-    scanf("%d", &choice);
+    std::cout << "Enter 1 to encrypt and 2 to decrypt: ";
+    std::cin >> choice;
 
-    const char *inputFile, *outputFile;
+    const char* inputFile;
+    const char* outputFile;
     char key = 'K'; // Simple XOR key
 
     if (choice == 1) {
@@ -19,28 +21,28 @@ int main() {
         // inputFile = "output.jpeg";  //for images
         // outputFile = "decrypted_file.jpeg";
     } else {
-        printf("Invalid Choice!\n");
-        return 0;
+        std::cout << "Invalid Choice!\n";
+        return 1;
     }
 
-    FILE *in = fopen(inputFile, "rb");
-    FILE *out = fopen(outputFile, "wb");
+    std::ifstream inFile(inputFile, std::ios::binary);
+    std::ofstream outFile(outputFile, std::ios::binary);
 
-    if (in == NULL || out == NULL) {
-        printf("Error! Could not open file\n");
-        fclose(in);
-        fclose(out);
-        return 0;
+    if (!inFile.is_open() || !outFile.is_open()) {
+        std::cerr << "Error! Could not open file\n";
+        if (inFile.is_open()) inFile.close();
+        if (outFile.is_open()) outFile.close();
+        return 1;
     }
 
-    int ch;
-    while ((ch = fgetc(in)) != EOF) {
-        fputc(ch ^ key, out); // XOR encryption/decryption
+    char ch;
+    while (inFile.get(ch)) {
+        outFile.put(ch ^ key); // XOR encryption/decryption
     }
 
-    fclose(in);
-    fclose(out);
+    inFile.close();
+    outFile.close();
 
-    printf("Operation complete: %s\n", choice == 1 ? "Encrypted" : "Decrypted");
+    std::cout << "Operation complete: " << (choice == 1 ? "Encrypted" : "Decrypted") << "\n";
     return 0;
 }
